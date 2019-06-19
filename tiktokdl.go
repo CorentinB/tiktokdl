@@ -3,6 +3,7 @@ package tiktokdl
 import (
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -73,7 +74,7 @@ func downloadFile(url string, filepath string) error {
 // Download take a TikTok URL as parameter and an optional
 // output directory, fetch needed informations, and download
 // the files.
-func Download(url string, outputDirectory string, randomUA, verbose bool) {
+func Download(url string, outputDirectory string, randomUA, verbose bool) error {
 	var meta Metadata
 
 	// Create collector
@@ -122,35 +123,41 @@ func Download(url string, outputDirectory string, randomUA, verbose bool) {
 			fmt.Println(checkPre+" Video link:  ", meta.VideoURL)
 			fmt.Println("\n"+checkPre+" Statistics:  ", c.String())
 		}
-
-		fileName := outputDirectory + meta.Username + "/" + path.Base(url) + "/" + path.Base(url) + "." + meta.Username + "." + strings.Replace(meta.Title, " ", "_", -1)
-
-		os.MkdirAll(outputDirectory+meta.Username+"/"+path.Base(url), os.ModePerm)
-
-		// Generate and write JSON file
-		jsonData, err := json.Marshal(meta)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		err = ioutil.WriteFile(fileName+".json", jsonData, 0644)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		// Download poster and video
-		err = downloadFile(meta.PosterURL, fileName+".jpg")
-		if err != nil {
-			panic(err)
-		}
-
-		err = downloadFile(meta.VideoURL, fileName+".mp4")
-		if err != nil {
-			panic(err)
-		}
 	})
 
 	c.Visit(url)
+
+	if len(meta.VideoURL) <= 1 {
+		return errors.New("Unable to scrape video download URL")
+	}
+
+	fileName := outputDirectory + meta.Username + "/" + path.Base(url) + "/" + path.Base(url) + "." + meta.Username + "." + strings.Replace(meta.Title, " ", "_", -1)
+
+	os.MkdirAll(outputDirectory+meta.Username+"/"+path.Base(url), os.ModePerm)
+
+	// Generate and write JSON file
+	jsonData, err := json.Marshal(meta)
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("unable to create JSON representation")
+	}
+
+	err = ioutil.WriteFile(fileName+".json", jsonData, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return errors.New("unable to write JSON file")
+	}
+
+	// Download poster and video
+	err = downloadFile(meta.PosterURL, fileName+".jpg")
+	if err != nil {
+		return errors.New("unable to write poster file")
+	}
+
+	err = downloadFile(meta.VideoURL, fileName+".mp4")
+	if err != nil {
+		return errors.New("unable to write video file")
+	}
+
+	return nil
 }
