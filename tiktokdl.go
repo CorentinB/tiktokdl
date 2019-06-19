@@ -74,10 +74,6 @@ func downloadFile(url string, filepath string) error {
 // output directory, fetch needed informations, and download
 // the files.
 func Download(url string, outputDirectory string, randomUA, verbose bool) {
-	if outputDirectory == "" {
-		outputDirectory = "./users/"
-	}
-
 	var meta Metadata
 
 	// Create collector
