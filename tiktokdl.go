@@ -131,9 +131,9 @@ func Download(url string, outputDirectory string, randomUA, verbose bool) error 
 		return errors.New("Unable to scrape video download URL")
 	}
 
-	fileName := outputDirectory + meta.Username + "/" + path.Base(url) + "/" + path.Base(url) + "." + meta.Username + "." + strings.Replace(meta.Title, " ", "_", -1)
+	fileName := outputDirectory + "/" + meta.Username + "/" + path.Base(url) + "/" + path.Base(url) + "." + meta.Username + "." + strings.Replace(meta.Title, " ", "_", -1)
 
-	os.MkdirAll(outputDirectory+meta.Username+"/"+path.Base(url), os.ModePerm)
+	os.MkdirAll(outputDirectory+"/"+meta.Username+"/"+path.Base(url), os.ModePerm)
 
 	// Generate and write JSON file
 	jsonData, err := json.Marshal(meta)
