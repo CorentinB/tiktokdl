@@ -75,7 +75,7 @@ func downloadFile(url string, filepath string) error {
 // the files.
 func Download(url string, outputDirectory string, randomUA, verbose bool) {
 	if outputDirectory == "" {
-		outputDirectory = "./users"
+		outputDirectory = "./users/"
 	}
 
 	var meta Metadata
