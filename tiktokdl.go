@@ -15,7 +15,7 @@ import (
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
 	"github.com/labstack/gommon/color"
-	"mvdan.cc/xurls"
+	"mvdan.cc/xurls/v2"
 )
 
 // Metadata contain video's metadatas
@@ -92,7 +92,8 @@ func Download(url string, outputDirectory string, randomUA, verbose bool) error 
 
 	// Find poster link
 	c.OnHTML("head", func(e *colly.HTMLElement) {
-		CDNurl := findCDNURL(xurls.Strict().FindAllString(e.ChildText("script"), -1))
+		rxStrict := xurls.Strict()
+		CDNurl := findCDNURL(rxStrict.FindAllString(e.ChildText("script"), -1))
 		if CDNurl != "not found" {
 			meta.VideoURL = CDNurl
 		}
